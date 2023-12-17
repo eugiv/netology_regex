@@ -12,19 +12,43 @@ phone_substitute = r"+7(\2)\3-\4-\5 \6\7"
 
 def phone_format(pat, sub, col_ind=5):
     phone_new = re.sub(pat, sub, str(lst[col_ind]))
-    return phone_new
+    phone_new = phone_new.strip(' ')
+    if phone_new == '':
+        phone_new = []
+        return phone_new
+    else:
+        return [phone_new]
 
 
-new_contact_list = []
+new_contact_list = [contact_list[0]]
 for lst in contact_list[1:]:
-    fio_pos = re.findall(r"[а-яА-Я]+", str(lst[0:4]))
-    for i in range(0, len(fio_pos)):
-        lastname = re.findall(r"[а-яА-Я]+", str(lst))[i]
-    position = re.findall(r".+", str(lst[4]))
-    phone = phone_format(phone_pattern, phone_substitute)
-    email = re.findall(r"(?:\w+|\d+|\.|-)@\w+\.\w+", str(lst))
-    pprint(email)
+    person = []
+    elem_in_entry_range = lst[0:4]
+    fio_dept_re = re.findall(r"[а-яА-Я]+", str(elem_in_entry_range))
+    if len(fio_dept_re) < len(elem_in_entry_range):
+        delta = len(elem_in_entry_range) - len(fio_dept_re)
+        for i in range(delta):
+            fio_dept_re.append([])
+    person.extend(fio_dept_re)
 
-    # --alternatives--
+    position = re.findall(r".+", str(lst[4]))
+    person.append(position)
+
+    phone = phone_format(phone_pattern, phone_substitute)
+    person.append(phone)
+    email = re.findall(r"(?:\w+|\d+|\.|-)@\w+\.\w+", str(lst))
+    person.append(email)
+
+    for i in range(len(person)):
+        if len(person[i]) == 1:
+            person[i] = person[i][0]
+        elif not person[i]:
+            person[i] = ''
+    new_contact_list.append(person)
+
+print(new_contact_list)
+
+
+    # --alternative regex--
     # surname = re.findall(r"\w+(?:вич|вна)", str(lst))
     # email = re.findall(r"[a-zA-Z0-9.-]+@[a-zA-Z.-]+\.(?:ru|com|gov|org|net)", str(lst))
