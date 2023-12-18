@@ -1,6 +1,15 @@
+import csv
+
 import phonebook_processor as pp
 
-phone_pattern = r"(\+7|8)?[\s-]?\(?(\d{3})\)?[\s-]?(\d{3})[\s-]?(\d{2})[\s-]?(\d{2})\s?\(?(доб\.?)?\s?(\d+)?\)?"
-phone_substitute = r"+7(\2)\3-\4-\5 \6\7"
-
 if __name__ == "__main__":
+    with open('phonebook_raw.csv') as f:
+        rows = csv.reader(f, delimiter=',')
+        contact_list = list(rows)
+
+    phonebook_duplicates = pp.create_contact_list(contact_list)
+    fixed_phonebook = pp.phonebook_unique(phonebook_duplicates)
+
+    with open("phonebook.csv", "w") as f:
+        datawriter = csv.writer(f, delimiter=',')
+        datawriter.writerows(fixed_phonebook)
